@@ -1,0 +1,28 @@
+#define _POSIX_C_SOURCE 200809L
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+int main() {
+  char *buffer;
+  size_t buffsize = 32;
+  size_t chars;
+
+  buffer = (char *)malloc(buffsize * sizeof(char));
+
+  if (buffer == NULL) {
+    printf("Memory allocation failed");
+    return -1;
+  }
+
+  printf("Please enter some text: ");
+  chars = getline(&buffer, &buffsize, stdin);
+  char *saveptr;
+  char *ret = strtok_r(buffer, " ", &saveptr);
+  while (ret) {
+    printf("%s\n", ret);
+    ret = strtok_r(NULL, " ", &saveptr);
+  }
+
+  free(buffer);
+}

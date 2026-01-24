@@ -1,0 +1,13 @@
+#define _POSIX_C_SOURCE 200809L
+#include <stdio.h>
+#include <stdlib.h>
+
+int main() {
+  char *buffer;
+  size_t buffsize = 0;
+
+  printf("Please enter some text: ");
+
+  if (getline(&buffer, &buffsize, stdin) != -1L) {
+  }
+}
