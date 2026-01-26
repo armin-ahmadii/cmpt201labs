@@ -1,0 +1,12 @@
+#include <stdio.h>
+#include <string.h>
+#include <unistd.h>
+
+int main() {
+  char nameOfProgram[99];
+  char *ptrToNOP;
+  printf("Enter programs to run.\n");
+  scanf("%s", nameOfProgram);
+  ptrToNOP = nameOfProgram;
+  execl(ptrToNOP, nameOfProgram, NULL);
+}

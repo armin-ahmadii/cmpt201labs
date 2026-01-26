@@ -1,0 +1,13 @@
+#include <stdio.h>
+#include <string.h>
+#include <unistd.h>
+#include <sys/types.h>
+
+int main() {
+  pid_t pid;
+  pid = fork();
+  char nameOfProgram[99];
+  printf("Enter programs to run.\n");
+  scanf("%s", nameOfProgram);
+  execl(nameOfProgram, nameOfProgram, NULL);
+}

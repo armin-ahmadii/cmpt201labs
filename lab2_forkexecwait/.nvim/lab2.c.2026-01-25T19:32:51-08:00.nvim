@@ -7,6 +7,7 @@
 #include <unistd.h>
 
 int main() {
+  char nothing[] = "nothing";
   while (1) {
     pid_t pid;
     pid = fork();
@@ -14,6 +15,9 @@ int main() {
       char nameOfProgram[99];
       printf("Enter programs to run.\n");
       scanf("%s", nameOfProgram);
+      if (strcmp(nameOfProgram, nothing) == 0) {
+        exit(EXIT_SUCCESS);
+      }
       execl(nameOfProgram, nameOfProgram, NULL);
     }
 
