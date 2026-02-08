@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 #define BUF_SIZE 256
 
@@ -31,10 +32,12 @@ void iterate(struct header *block) {
   if (block == NULL)
     return;
 
-  unsigned char *start = (unsigned char *)block + 128;
+  unsigned char *start = (unsigned char *)block + sizeof(struct header);
+  size_t data_size = block->size - sizeof(struct header);
 
-  for (uint64_t i = 0; i < block->size; i++) {
-    print_out("Byte %lu\n", &start[i], 1);
+  for (size_t i = 0; i < data_size; i++) {
+    uint64_t val = start[i];
+    print_out("%lu\n", &val, sizeof(uint64_t));
   }
 }
 
@@ -44,8 +47,13 @@ int main(void) {
   new_memory_block = sbrk(256);
 
   struct header *block1 = (struct header *)new_memory_block;
-  void *memory_block_2 = (char *)new_memory_block + sizeof(struct header);
+  void *memory_block_2 = (char *)new_memory_block + 128;
   struct header *block2 = (struct header *)memory_block_2;
+
+  memset((char *)block1 + sizeof(struct header), 0,
+         128 - sizeof(struct header));
+  memset((char *)block2 + sizeof(struct header), 1,
+         128 - sizeof(struct header));
 
   block1->next = NULL;
   block2->next = block1;
