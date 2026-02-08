@@ -1,0 +1,10 @@
+#include <unistd.h>
+#include <stdio.h>
+
+int main() {
+  void *start_heap;
+  void *new_memory_block;
+  start_heap = sbrk(0);
+  new_memory_block = sbrk(256);
+}
+
