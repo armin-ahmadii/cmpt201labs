@@ -1,9 +1,0 @@
-#include <stdio.h>
-#include <unistd.h>
-
-int main(void) {
-  void *brk_heap;
-  void *new_memory_block;
-  brk_heap = sbrk(0);
-  new_memory_block = sbrk(256);
-}
