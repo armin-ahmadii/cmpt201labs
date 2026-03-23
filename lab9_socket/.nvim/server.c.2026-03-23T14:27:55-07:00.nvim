@@ -42,8 +42,9 @@ void *handle_client(void *arg) {
   printf("New client created! ID %d on socket FD %d\n", client->client_id,
          client->cfd);
 
+  // Read loop: read() returns 0 on EOF (client close), -1 on error
   while ((num_read = read(client->cfd, buf, BUF_SIZE - 1)) > 0) {
-    buf[num_read] = '\0';
+    buf[num_read] = '\0'; // Ensure string is null-terminated
 
     pthread_mutex_lock(&count_mutex);
     total_message_count++;
@@ -53,13 +54,14 @@ void *handle_client(void *arg) {
     printf("Msg # %3d; Client ID %d: %s", current_total, client->client_id,
            buf);
 
+    // If the message doesn't end in a newline, add one for formatting
     if (buf[num_read - 1] != '\n')
       printf("\n");
   }
 
   printf("Ending thread for client %d\n", client->client_id);
   close(client->cfd);
-  free(client);
+  free(client); // Free the memory allocated in main
   return NULL;
 }
 
@@ -77,8 +79,6 @@ int main() {
   addr.sin_port = htons(PORT);
   addr.sin_addr.s_addr = htonl(INADDR_ANY);
 
-  int opt = 1;
-  setsockopt(sfd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
   if (bind(sfd, (struct sockaddr *)&addr, sizeof(struct sockaddr_in)) == -1) {
     handle_error("bind");
   }
@@ -94,6 +94,7 @@ int main() {
       continue;
     }
 
+    // Accept new connection
     info->cfd = accept(sfd, NULL, NULL);
     if (info->cfd == -1) {
       perror("accept");
@@ -101,10 +102,12 @@ int main() {
       continue;
     }
 
+    // Assign and increment Client ID safely
     pthread_mutex_lock(&client_id_mutex);
     info->client_id = client_id_counter++;
     pthread_mutex_unlock(&client_id_mutex);
 
+    // Create thread to handle this specific client
     pthread_t thread_id;
     if (pthread_create(&thread_id, NULL, handle_client, (void *)info) != 0) {
       perror("pthread_create");
@@ -113,6 +116,7 @@ int main() {
       continue;
     }
 
+    // Detach thread so it cleans up after itself
     pthread_detach(thread_id);
   }
 

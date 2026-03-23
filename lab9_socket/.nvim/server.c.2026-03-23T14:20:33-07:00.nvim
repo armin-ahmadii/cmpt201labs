@@ -36,30 +36,7 @@ void *handle_client(void *arg) {
 
   // TODO: print the message received from client
   // TODO: increase total_message_count per message
-  char buf[BUF_SIZE];
-  ssize_t num_read;
 
-  printf("New client created! ID %d on socket FD %d\n", client->client_id,
-         client->cfd);
-
-  while ((num_read = read(client->cfd, buf, BUF_SIZE - 1)) > 0) {
-    buf[num_read] = '\0';
-
-    pthread_mutex_lock(&count_mutex);
-    total_message_count++;
-    int current_total = total_message_count;
-    pthread_mutex_unlock(&count_mutex);
-
-    printf("Msg # %3d; Client ID %d: %s", current_total, client->client_id,
-           buf);
-
-    if (buf[num_read - 1] != '\n')
-      printf("\n");
-  }
-
-  printf("Ending thread for client %d\n", client->client_id);
-  close(client->cfd);
-  free(client);
   return NULL;
 }
 
@@ -77,8 +54,6 @@ int main() {
   addr.sin_port = htons(PORT);
   addr.sin_addr.s_addr = htonl(INADDR_ANY);
 
-  int opt = 1;
-  setsockopt(sfd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
   if (bind(sfd, (struct sockaddr *)&addr, sizeof(struct sockaddr_in)) == -1) {
     handle_error("bind");
   }
@@ -88,34 +63,14 @@ int main() {
   }
 
   for (;;) {
-    struct client_info *info = malloc(sizeof(struct client_info));
-    if (info == NULL) {
-      perror("malloc");
-      continue;
-    }
-
-    info->cfd = accept(sfd, NULL, NULL);
-    if (info->cfd == -1) {
-      perror("accept");
-      free(info);
-      continue;
-    }
-
-    pthread_mutex_lock(&client_id_mutex);
-    info->client_id = client_id_counter++;
-    pthread_mutex_unlock(&client_id_mutex);
-
-    pthread_t thread_id;
-    if (pthread_create(&thread_id, NULL, handle_client, (void *)info) != 0) {
-      perror("pthread_create");
-      close(info->cfd);
-      free(info);
-      continue;
-    }
-
-    pthread_detach(thread_id);
+    // TODO: create a new thread when a new connection is encountered
+    // TODO: call handle_client() when launching a new thread, and provide
+    // client_info
   }
 
-  close(sfd);
+  if (close(sfd) == -1) {
+    handle_error("close");
+  }
+
   return 0;
 }

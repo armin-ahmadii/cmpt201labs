@@ -1,0 +1,4 @@
+/home/cmpt201/labs/cmpt201labs/lab9_socket/build/CMakeFiles/server.dir
+/home/cmpt201/labs/cmpt201labs/lab9_socket/build/CMakeFiles/client.dir
+/home/cmpt201/labs/cmpt201labs/lab9_socket/build/CMakeFiles/edit_cache.dir
+/home/cmpt201/labs/cmpt201labs/lab9_socket/build/CMakeFiles/rebuild_cache.dir

@@ -43,7 +43,7 @@ void *handle_client(void *arg) {
          client->cfd);
 
   while ((num_read = read(client->cfd, buf, BUF_SIZE - 1)) > 0) {
-    buf[num_read] = '\0';
+    buf[num_read] = '\0'; 
 
     pthread_mutex_lock(&count_mutex);
     total_message_count++;
@@ -59,7 +59,7 @@ void *handle_client(void *arg) {
 
   printf("Ending thread for client %d\n", client->client_id);
   close(client->cfd);
-  free(client);
+  free(client); 
   return NULL;
 }
 
@@ -77,8 +77,6 @@ int main() {
   addr.sin_port = htons(PORT);
   addr.sin_addr.s_addr = htonl(INADDR_ANY);
 
-  int opt = 1;
-  setsockopt(sfd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
   if (bind(sfd, (struct sockaddr *)&addr, sizeof(struct sockaddr_in)) == -1) {
     handle_error("bind");
   }
