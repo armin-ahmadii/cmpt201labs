@@ -1,33 +1,3 @@
-/*
-Questions to answer at top of server.c:
-(You should not need to change client.c)
-Understanding the Client:
-1. How is the client sending data to the server? What protocol?  The client uses
-TCP over IPV4. It creates a socket, connects to the server at local host, then
-sends data using write on the socket fd.
-2. What data is the client sending to the server?
-It sends 5 string messages: "Hello", "Apple", "Car", "Green", and "Dog". Each is
-copied into a fixed 1024-byte buffer and sent one per second using a sleep(1)
-between each write() Understanding the Server:
-1. Explain the argument that the `run_acceptor` thread is passed as an argument.
-It receives a pointer to struct acceport_args, which contains three fields:
-- run: a bool that main sets to false to signal thread to stop
-- list_handle: a pointer to the shared linked list
-- list_lock: a pointer to the mutex that protects said shared list.
-2. How are received messages stored
-Messages are stored in a singly linked list of list node structs. each node
-holding a mallocd 1024 byte
-3. What does `main()` do with the received messages?
-After all messages are collected, main() calls collect_all(), whcih walks the
-linked list from head, prints each mesage with printf, frees each node, and it
-data buffer, and then returns the total count. Main() then checks that the count
-matches list_handle _> coount and prints
-4. How are threads used in this sample code?
-main() spawns one acceport thread running run_acceptor(). The acceptor thread
-spanws one client thread (run_client()) per connected client, up to MAX_CLIENT.
-Each client thread independatly reads from its own soclet.
-*/
-
 #include <arpa/inet.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -161,9 +131,6 @@ static void *run_client(void *args) {
 
       struct list_handle *list_handle = cargs->list_handle;
       // TODO: Safely use add_to_list to add new_node to the list
-      pthread_mutex_lock(cargs->list_lock);
-      add_to_list(list_handle, new_node);
-      pthread_mutex_unlock(cargs->list_lock);
     }
   }
 
@@ -201,8 +168,6 @@ static void *run_acceptor(void *args) {
         num_clients++;
 
         // TODO: Create a new thread to handle the client
-        pthread_create(&threads[num_clients - 1], NULL, run_client,
-                       &client_args[num_clients - 1]);
       }
     }
   }
@@ -213,8 +178,6 @@ static void *run_acceptor(void *args) {
   for (int i = 0; i < num_clients; i++) {
     // TODO: Set flag to stop the client thread
     // TODO: Wait for the client thread and close its socket
-    client_args[i].run = false;
-    pthread_join(threads[i], NULL);
   }
 
   if (close(sfd) == -1) {
@@ -245,13 +208,6 @@ int main() {
   pthread_create(&acceptor_thread, NULL, run_acceptor, &aargs);
 
   // TODO: Wait until enough messages are received
-  while (true) {
-    pthread_mutex_lock(&list_mutex);
-    uint32_t count = list_handle.count;
-    pthread_mutex_unlock(&list_mutex);
-    if (count >= MAX_CLIENTS * NUM_MSG_PER_CLIENT)
-      break;
-  }
 
   aargs.run = false;
   pthread_join(acceptor_thread, NULL);
