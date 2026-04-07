@@ -10,10 +10,10 @@
 #define GRN "\e[0;32m"
 #define CRESET "\e[0m"
 
-#define handle_error(msg)                                                      \
-  do {                                                                         \
-    perror(msg);                                                               \
-    exit(EXIT_FAILURE);                                                        \
+#define handle_error(msg)            \
+  do {                               \
+    perror(msg);                     \
+    exit(EXIT_FAILURE);              \
   } while (0)
 
 size_t read_all_bytes(const char *filename, void *buffer, size_t buffer_size) {
@@ -115,8 +115,7 @@ int verify(const char *message_path, const char *sign_path, EVP_PKEY *pubkey) {
   size_t sig_len = read_all_bytes(sign_path, signature, MAX_FILE_SIZE);
 
   EVP_MD_CTX *ctx = EVP_MD_CTX_new();
-  if (!ctx)
-    return -1;
+  if (!ctx) return -1;
 
   if (EVP_DigestVerifyInit(ctx, NULL, EVP_sha256(), NULL, pubkey) <= 0) {
     EVP_MD_CTX_free(ctx);
@@ -132,10 +131,8 @@ int verify(const char *message_path, const char *sign_path, EVP_PKEY *pubkey) {
   EVP_MD_CTX_free(ctx);
 
   // EVP_DigestVerifyFinal returns 1 on success, 0 on bad sig, negative on error
-  if (result == 1)
-    return 1;
-  if (result == 0)
-    return 0;
+  if (result == 1) return 1;
+  if (result == 0) return 0;
 
   return -1;
 }
